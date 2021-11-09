@@ -1,46 +1,45 @@
 import request from "request";
 
-export default async (option) => {
-  const { secret } = option;
-  if (!secret) {
-    throw new Error("secret is required");
+class Recaptcha {
+  constructor(secret, minScore) {
+    this.secret = secret;
+    this.minScore = minScore || 0.5;
   }
 
-  // Google recaptcha server url
-  const url =
-    "https://www.google.com/recaptcha/api/siteverify?secret={secret}&response={token}";
+  async verify(req, res, next) {
+    const { token } = req.body;
 
-  const verify = async (req, res, next) => {
-    // Extract token from request body
-    const { _token } = req.body;
-
-    if (!_token) {
-      next(() => {
-        throw new Error("Missing token is field");
+    if (!token) {
+      return next(() => {
+        throw new Error("No token provided");
       });
     }
-    // Send request to google server
-    request(
-      url.replace("{secret}", secret).replace("{token}", _token),
-      (err, response, body) => {
-        if (err) {
-          next(() => {
-            throw new Error("Error while verifying token");
-          });
-        }
 
-        // Parse response
-        const { success, error_codes } = JSON.parse(body);
-
-        if (!success) {
-          next(() => {
-            throw new Error("Invalid token");
-          });
-        }
-
-        next();
+    const url = `https://www.google.com/recaptcha/api/siteverify?secret=${this.secret}&response=${token}`;
+    request(url, (err, response, body) => {
+      if (err) {
+        return next(() => {
+          throw new Error("Error verifying recaptcha");
+        });
       }
-    );
-  };
-  return verify;
-};
+
+      const { success, score } = JSON.parse(body);
+
+      if (!success) {
+        return next(() => {
+          throw new Error("Recaptcha verification failed");
+        });
+      }
+
+      if (score < this.minScore) {
+        return next(() => {
+          throw new Error("Recaptcha verification score too low");
+        });
+      }
+
+      next();
+    });
+  }
+}
+
+export default Recaptcha;
