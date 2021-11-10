@@ -1,6 +1,6 @@
 {
   "name": "express-recaptcha3",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "An Express middleware for recapctha server implementation",
   "main": "index.js",
   
