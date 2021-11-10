@@ -3,9 +3,9 @@
 ES6 Module
 
 ```js
-import recaptchaMidlleware from "express-recapctha3";
+import ExpressRecaptcha3 from "express-recapctha3";
 
-const recapctha = new recaptchaMidlleware({
+const recapctha = new ExpressRecaptcha3({
   secret: process.env.RECAPTCHA_SITE_SECRET_KEY,
   score: 0.7,
 });
@@ -18,9 +18,9 @@ app.post("/contact", recaptcha.verify, (req, res) => {
 Common JS
 
 ```js
-const recaptchaMidlleware = reqire("express-recapctha3");
+const ExpressRecaptcha3 = reqire("express-recapctha3");
 
-const recapctha = new recaptchaMidlleware({
+const recapctha = new ExpressRecaptcha3({
   secret: process.env.RECAPTCHA_SITE_SECRET_KEY,
   score: 0.7,
 });

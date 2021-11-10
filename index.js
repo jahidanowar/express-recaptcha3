@@ -1,8 +1,7 @@
 import request from "request";
 
-class Recaptcha {
+class ExpressRecaptcha3 {
   constructor(secret, minScore) {
-    console.log("secret", secret, "minScore", minScore);
     if (!secret) {
       throw new Error("No secret provided");
     }
@@ -20,17 +19,15 @@ class Recaptcha {
 
       request(url, (err, response, body) => {
         if (err) {
-          throw new Error("Error verifying recaptcha");
+          return next(new Error("Error verifying recaptcha"));
         }
         const { success, score } = JSON.parse(body);
 
-        console.log("success", success, "score", score);
-
         if (!success) {
-          throw new Error("Recaptcha verification failed");
+          return next(new Error("Recaptcha verification failed"));
         }
         if (score < this.minScore) {
-          throw new Error("Recaptcha verification score too low");
+          return next(new Error("Recaptcha verification score too low"));
         }
         next();
       });
@@ -38,4 +35,4 @@ class Recaptcha {
   };
 }
 
-export default Recaptcha;
+export default ExpressRecaptcha3;
